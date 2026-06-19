@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador Financiero Pro - Ecuador</title>
+    <!-- Tailwind CSS para el diseño oscuro y elegante -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para los íconos premium -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para mejorar scrollbars y transiciones */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 9999px;
+            border: 2px solid #020617;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981; 
+        }
+        .custom-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- Cabecera Principal (Oculta al imprimir) -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 shadow-lg print:hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500 text-slate-950 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-calculator text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+                        Planificador Financiero Pro
+                    </h1>
+                    <p class="text-xs text-slate-400">Simulador de amortización interactivo para Ecuador</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportarExcelColorido()" class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-400/20">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar Excel Colorido</span>
+                </button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-850 transition-all duration-200">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Imprimir Plan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor de Alertas Personalizadas (Evita usar alert() del navegador) -->
+    <div id="alert-container" class="fixed top-20 right-4 z-50 max-w-sm space-y-2 pointer-events-none"></div>
+
+    <!-- Contenido de la Aplicación -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- --- SECCIÓN: Ejemplos Prácticos de Ecuador --- -->
+        <section class="bg-gradient-to-br from-emerald-950/40 to-slate-900 border border-emerald-500/10 p-6 rounded-2xl shadow-xl space-y-4 print:hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400">
+                        <i class="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-white">Casos Prácticos y Reales de Ecuador</h2>
+                        <p class="text-xs text-slate-400">Carga ejemplos con tasas vigentes en el país o limpia todo para tu propio proyecto:</p>
+                    </div>
+                </div>
+                
+                <button onclick="resetearParaPersonalizar()" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all shadow-lg shadow-emerald-400/10">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>🧹 Empezar Proyecto desde Cero</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                <!-- Tarjeta BanEcuador -->
+                <button onclick="cargarCasoEcuador('banecuador')" class="border text-left p-4 rounded-xl bg-slate-900/60 border-slate-800 hover:border-emerald-500 hover:bg-slate-900/90 transition-all duration-200 group">
+                    <span class="font-extrabold text-sm block mb-1 group-hover:text-emerald-400">🇪🇨 BanEcuador (Productivo)</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$20,000</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">5 años • Alemán (Decreciente)</span>
+                </button>
+
+                <!-- Tarjeta Banco Guayaquil -->
+                <button onclick="cargarCasoEcuador('guayaquil')" class="border text-left p-4 rounded-xl bg-slate-900/60 border-slate-800 hover:border-emerald-500 hover:bg-slate-900/90 transition-all duration-200 group">
+                    <span class="font-extrabold text-sm block mb-1 group-hover:text-emerald-400">🚗 B. Guayaquil (Toyota Fortuner)</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$58,000</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">8 años • Francés (Cuota Fija)</span>
+                </button>
+
+                <!-- Tarjeta Computadora de Estudio -->
+                <button onclick="cargarCasoEcuador('estudio')" class="border text-left p-4 rounded-xl bg-slate-900/60 border-slate-800 hover:border-emerald-500 hover:bg-slate-900/90 transition-all duration-200 group">
+                    <span class="font-extrabold text-sm block mb-1 group-hover:text-emerald-400">💻 Computadora de Estudio</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$1,200</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">2 años • Francés (Fijo)</span>
+                </button>
+
+                <!-- Tarjeta Idea de Emprendimiento -->
+                <button onclick="cargarCasoEcuador('emprendimiento')" class="border text-left p-4 rounded-xl bg-slate-900/60 border-slate-800 hover:border-emerald-500 hover:bg-slate-900/90 transition-all duration-200 group">
+                    <span class="font-extrabold text-sm block mb-1 group-hover:text-emerald-400">🌱 Emprendimiento Local</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$5,000</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">3 años • Francés (Fijo)</span>
+                </button>
+            </div>
+
+            <!-- Caja Informativa / Explicación del Caso -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex items-start gap-3">
+                <div class="text-emerald-400 text-sm mt-0.5"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="text-xs space-y-1">
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">Análisis y Consejo del Planificador</span>
+                    <p id="txt-consejo" class="text-slate-300 leading-relaxed">
+                        Financiamiento de un vehículo SUV familiar en el Banco Guayaquil a un plazo de 8 años con el Sistema Francés (cuotas fijas). Al ser cuotas fijas, te permite planificar tu presupuesto mensual con total exactitud.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulario de Configuración y Panel Visual -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Panel de Inputs (Columna 1) -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-6 print:hidden">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-xs">1</span>
+                        Personalizar Préstamo
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Modifica estos datos para recalcular todo automáticamente:</p>
+                </div>
+
+                <!-- Input: Nombre de la meta -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">¿Qué vas a Financiar?</label>
+                    <input type="text" id="asset-name" value="Toyota Fortuner SUV" oninput="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <!-- Input: Costo del activo -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Valor de Adquisición o Deuda ($)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </span>
+                        <input type="number" id="cost" value="58000" oninput="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Inputs: Plazo e Interés -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Plazo (Años)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </span>
+                            <input type="number" id="years" value="8" min="1" max="40" oninput="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Tasa Interés (%)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                                <i class="fa-solid fa-percent"></i>
+                            </span>
+                            <input type="number" id="interest" value="12.99" step="0.01" oninput="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select: Sistema de Amortización -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Sistema de Amortización</label>
+                    <select id="system" onchange="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="french">Francés (Cuotas Fijas Constantes)</option>
+                        <option value="german">Alemán (Cuotas Variables Decrecientes)</option>
+                        <option value="american">Americano (Pago de Capital al Final)</option>
+                    </select>
+                </div>
+
+                <!-- Select: Frecuencia de Pago -->
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Frecuencia de Pagos</label>
+                    <select id="frequency" onchange="calcularAmortizacion()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="12">Mensual (Recomendado)</option>
+                        <option value="4">Trimestral</option>
+                        <option value="2">Semestral</option>
+                        <option value="1">Anual</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Panel de Resultados y Gráficos (Columnas 2 y 3) -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Encabezado de la simulación activa -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <span id="lbl-activo" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Meta: Toyota Fortuner SUV
+                        </span>
+                        <h3 class="text-2xl font-black text-white mt-2">Plan de Financiamiento</h3>
+                    </div>
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl text-right">
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">Primera Cuota</span>
+                        <span id="card-primera-cuota" class="text-2xl font-black text-emerald-400">$0.00</span>
+                        <span id="card-tipo-frecuencia" class="text-[9px] text-slate-400 block mt-0.5">Mensuales aprox.</span>
+                    </div>
+                </div>
+
+                <!-- Indicadores Rápidos -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Monto de Deuda</span>
+                        <p id="kpi-monto" class="text-xl font-extrabold text-white">$0.00</p>
+                        <p class="text-[10px] text-slate-500 mt-1">El valor de adquisición neto.</p>
+                    </div>
+
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg border-l-4 border-l-amber-500">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Interés Acumulado</span>
+                        <p id="kpi-interes" class="text-xl font-extrabold text-amber-500">$0.00</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Dinero que se va al banco.</p>
+                    </div>
+
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg border-l-4 border-l-emerald-500">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Total a Devolver</span>
+                        <p id="kpi-total" class="text-xl font-extrabold text-emerald-400">$0.00</p>
+                        <p class="text-[10px] text-slate-500 mt-1">El costo total definitivo.</p>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Pastel de Barras (Porcentaje de amortización) -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800/80 shadow-md space-y-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                        Distribución de Pagos Totales (Destino de tu dinero)
+                    </h4>
+                    <p class="text-xs text-slate-400">
+                        Por cada dólar que pagas, esta es la proporción que va a cancelar tu activo real vs el interés bancario acumulado:
+                    </p>
+
+                    <!-- Barra de porcentaje -->
+                    <div class="w-full h-8 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800 p-1">
+                        <div id="bar-capital" class="bg-emerald-500 h-full rounded-l-full flex items-center justify-center text-slate-950 text-[11px] font-black transition-all duration-500" style="width: 50%;">
+                            60% Compra Activo
+                        </div>
+                        <div id="bar-interes" class="bg-amber-500 h-full rounded-r-full flex items-center justify-center text-slate-950 text-[11px] font-black transition-all duration-500" style="width: 50%;">
+                            40% Intereses
+                        </div>
+                    </div>
+
+                    <!-- Leyenda descriptiva -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 text-xs">
+                        <div class="bg-emerald-950/20 border border-emerald-500/10 p-3 rounded-xl">
+                            <span class="flex items-center gap-2 font-bold text-emerald-400">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                                Abono a Capital: <span id="lbl-pct-capital">0%</span>
+                            </span>
+                            <p class="text-[11px] text-slate-400 mt-1">Este monto baja tu deuda original y corresponde al valor que conservas en tu activo.</p>
+                        </div>
+                        <div class="bg-amber-950/20 border border-amber-500/10 p-3 rounded-xl">
+                            <span class="flex items-center gap-2 font-bold text-amber-400">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                                Cargos de Interés: <span id="lbl-pct-interes">0%</span>
+                            </span>
+                            <p class="text-[11px] text-slate-400 mt-1">El valor extra que pagas a la entidad por la facilidad de financiamiento.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Reducción de Saldo SVG -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-sm font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                            Curva de Reducción de la Deuda Pendiente
+                        </h4>
+                        <span class="text-xs text-slate-400">Evolución de saldo restante</span>
+                    </div>
+
+                    <!-- SVG Dinámico -->
+                    <div class="relative h-36 w-full bg-slate-950 rounded-xl border border-slate-800/60 p-2 overflow-hidden">
+                        <svg id="svg-chart" viewBox="0 0 500 120" class="w-full h-full overflow-visible" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="emeraldDarkGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#10b981" stop-opacity="0.25"></stop>
+                                    <stop offset="100%" stopColor="#020617" stop-opacity="0"></stop>
+                                </linearGradient>
+                            </defs>
+                            <!-- Líneas de cuadrícula horizontal -->
+                            <line x1="0" y1="110" x2="500" y2="110" stroke="#1e293b" stroke-width="1"></line>
+                            <line x1="0" y1="60" x2="500" y2="60" stroke="#1e293b" stroke-width="1"></line>
+                            <line x1="0" y1="10" x2="500" y2="10" stroke="#1e293b" stroke-width="1"></line>
+
+                            <!-- Área rellena de deuda -->
+                            <path id="svg-area" d="" fill="url(#emeraldDarkGradient)"></path>
+                            <!-- Línea de tendencia -->
+                            <path id="svg-line" d="" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"></path>
+                            <!-- Puntos extremos -->
+                            <circle id="svg-point-start" cx="0" cy="110" r="4.5" fill="#10b981"></circle>
+                            <circle id="svg-point-end" cx="500" cy="110" r="4.5" fill="#10b981"></circle>
+                        </svg>
+
+                        <!-- Leyendas de tiempo -->
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-bold px-1">
+                            <span>Inicio: Cuota 1</span>
+                            <span>Transcurso del Préstamo</span>
+                            <span>Deuda Pagada: $0</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- --- SECCIÓN: Abonos Extraordinarios --- -->
+        <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 print:hidden">
+            <div class="space-y-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-xs">2</span>
+                    Abonos Extras (Prepagos)
+                </h3>
+                <p class="text-xs text-slate-400">
+                    ¿Quieres simular qué pasa si abonas un dinero extra en alguna de las cuotas? Agrégalo aquí para ver cómo disminuyen tus intereses globales.
+                </p>
+            </div>
+
+            <div class="space-y-4 md:col-span-2 flex flex-col sm:flex-row items-end gap-4">
+                <div class="w-full space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400">¿En qué número de cuota harás el abono?</label>
+                    <input type="number" id="extra-period" value="12" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="w-full space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400">Monto del abono extra ($)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </span>
+                        <input type="number" id="extra-amount" value="2000" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <button onclick="agregarAbonoExtra()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-xl transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-emerald-500/10">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Simular Abono</span>
+                </button>
+            </div>
+
+            <!-- Listado de abonos agregados -->
+            <div id="container-lista-abonos" class="col-span-full border-t border-slate-800 pt-4 hidden">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Tus Abonos Extras Planificados:</h4>
+                <div id="lista-abonos" class="flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <!-- --- SECCIÓN: Tabla Detallada --- -->
+        <section class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-xs">3</span>
+                        Tabla Detallada de Cuotas
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Plan completo con la separación exacta de lo que pagas periódicamente:</p>
+                </div>
+                
+                <!-- Paginación local -->
+                <div class="flex items-center gap-1.5 print:hidden">
+                    <span id="lbl-paginacion" class="text-xs text-slate-400 mr-2">Página 1 de 1</span>
+                    <button onclick="cambiarPagina(-1)" class="p-1.5 rounded-lg border border-slate-800 bg-slate-950 hover:bg-slate-900 text-slate-300 transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button onclick="cambiarPagina(1)" class="p-1.5 rounded-lg border border-slate-800 bg-slate-950 hover:bg-slate-900 text-slate-300 transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla responsive -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950 border-b border-slate-800">
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 text-center w-20">Cuota</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Saldo Inicial</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Cuota Total</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-amber-500 text-right">Interés cobrado</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-emerald-400 text-right">Abono a Capital</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Abono Extra</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-white text-right">Saldo Restante</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-cuerpo" class="divide-y divide-slate-800/60">
+                        <!-- Llenado dinámico por JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Informativo de la Tabla -->
+            <div class="p-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span id="lbl-total-registros" class="text-xs text-slate-400">Mostrando 12 de 96 cuotas programadas.</span>
+            </div>
+        </section>
+
+        <!-- --- SECCIÓN: Guía de Educación Financiera --- -->
+        <section class="bg-slate-900 text-slate-300 p-8 rounded-2xl shadow-xl border border-slate-800 space-y-4 print:hidden">
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <span class="text-emerald-400 text-lg"><i class="fa-solid fa-book-open"></i></span>
+                <h3 class="text-base font-bold text-white">📙 Educación Financiera: El sistema Francés vs el sistema Alemán</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs leading-relaxed">
+                <div class="space-y-1.5">
+                    <h4 class="font-extrabold text-emerald-400">El sistema Francés (Cuota Fija)</h4>
+                    <p class="text-slate-400">
+                        Pagas la misma cuota mensual estable durante todo el préstamo. Es perfecto para planificar presupuestos familiares mes a mes. El secreto de este sistema es que en las primeras cuotas pagas en su mayoría interés y abonas poco al capital original de la deuda.
+                    </p>
+                </div>
+                <div class="space-y-1.5">
+                    <h4 class="font-extrabold text-amber-400">El sistema Alemán (Amortización Fija)</h4>
+                    <p class="text-slate-400">
+                        Pagas cuotas variables que disminuyen mes a mes. La cantidad de dinero que abonas directamente a la deuda es la misma en cada período, lo que hace que tu saldo deudor total caiga mucho más rápido y pagues mucho menos interés total acumulado.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-16 text-center text-xs text-slate-500 print:hidden">
+        <p>© 2026 Simulador de Créditos Ecuador. Diseñado para optimizar tu salud financiera.</p>
+    </footer>
+
+    <!-- LÓGICA DE JAVASCRIPT LOCAL -->
+    <script>
+        // --- DATA GENERAL ---
+        const sugerenciasActivos = {
+            banecuador: {
+                nombre: 'Préstamo Productivo Pymes',
+                costo: 20000,
+                anos: 5,
+                interes: 9.76,
+                sistema: 'german',
+                descripcion: 'Préstamo productivo de BanEcuador para impulsar negocios. Usamos el Sistema Alemán (cuotas decrecientes): tus primeras cuotas serán un poco más altas pero pagarás muchísimo menos interés total con el paso del tiempo.'
+            },
+            guayaquil: {
+                nombre: 'Toyota Fortuner SUV',
+                costo: 58000,
+                anos: 8,
+                interes: 12.99,
+                sistema: 'french',
+                descripcion: 'Financiamiento de un vehículo SUV familiar en el Banco Guayaquil a un plazo de 8 años con el Sistema Francés (cuotas fijas). Al ser cuotas fijas, te permite planificar tu presupuesto mensual con total exactitud.'
+            },
+            estudio: {
+                nombre: 'Laptop de Estudio',
+                costo: 1200,
+                anos: 2,
+                interes: 15.0,
+                sistema: 'french',
+                descripcion: 'Para tecnología personal, un plazo corto de 2 años con tasa estándar evita que sigas pagando el equipo cuando este ya empiece a quedar obsoleto.'
+            },
+            emprendimiento: {
+                nombre: 'Proyecto de Emprendimiento',
+                costo: 5000,
+                anos: 3,
+                interes: 11.5,
+                sistema: 'french',
+                descripcion: 'Ideal para iniciar un pequeño negocio de servicios o comercio, manteniendo cuotas mensuales bajas y cómodas mientras el negocio empieza a generar ganancias.'
+            }
+        };
+
+        // --- ESTADOS ---
+        let schedule = [];
+        let extraPayments = [];
+        let currentPage = 1;
+        const itemsPerPage = 12;
+
+        // --- MANEJO DE ALERTAS INTERNAS ---
+        function mostrarAlerta(msg, tipo = 'emerald') {
+            const container = document.getElementById('alert-container');
+            const alertBox = document.createElement('div');
+            alertBox.className = `p-4 mb-2 text-xs font-bold rounded-xl shadow-lg border text-slate-950 pointer-events-auto bg-emerald-400 border-emerald-500 transition-all duration-300`;
+            if (tipo === 'amber') {
+                alertBox.className = `p-4 mb-2 text-xs font-bold rounded-xl shadow-lg border text-slate-950 pointer-events-auto bg-amber-400 border-amber-500 transition-all duration-300`;
+            }
+            alertBox.innerText = msg;
+            container.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.style.opacity = '0';
+                setTimeout(() => alertBox.remove(), 300);
+            }, 3000);
+        }
+
+        // --- RESETEAR PROYECTO ---
+        function resetearFormulario() {
+            document.getElementById('asset-name').value = 'Mi Proyecto Nuevo';
+            document.getElementById('cost').value = 1000;
+            document.getElementById('years').value = 3;
+            document.getElementById('interest').value = 10.0;
+            document.getElementById('system').value = 'french';
+            document.getElementById('frequency').value = '12';
+            extraPayments = [];
+            document.getElementById('txt-consejo').innerText = 'Estás personalizando tu propio proyecto. Prueba cambiando las tasas de interés y plazos para ver cómo cambian tus cuotas.';
+            currentPage = 1;
+            renderizarAbonosExtra();
+            calcularAmortizacion();
+            mostrarAlerta('Formulario reiniciado con éxito. ¡Empieza a personalizar!');
+        }
+
+        function resetearParaPersonalizar() {
+            resetearFormulario();
+        }
+
+        // --- CARGAR CASO ECUADOR ---
+        function cargarCasoEcuador(key) {
+            const sug = sugerenciasActivos[key];
+            if (sug) {
+                document.getElementById('asset-name').value = sug.nombre;
+                document.getElementById('cost').value = sug.costo;
+                document.getElementById('years').value = sug.anos;
+                document.getElementById('interest').value = sug.interes;
+                document.getElementById('system').value = sug.sistema;
+                document.getElementById('frequency').value = '12';
+                document.getElementById('txt-consejo').innerText = sug.descripcion;
+                extraPayments = [];
+                currentPage = 1;
+                renderizarAbonosExtra();
+                calcularAmortizacion();
+                mostrarAlerta(`Cargado caso de ${sug.nombre}`);
+            }
+        }
+
+        // --- AGREGAR ABONO EXTRA ---
+        function agregarAbonoExtra() {
+            const period = parseInt(document.getElementById('extra-period').value) || 0;
+            const amount = parseFloat(document.getElementById('extra-amount').value) || 0;
+            const yearsVal = parseInt(document.getElementById('years').value) || 0;
+            const frequencyVal = parseInt(document.getElementById('frequency').value) || 0;
+            const totalPeriods = yearsVal * frequencyVal;
+
+            if (period < 1 || period > totalPeriods) {
+                mostrarAlerta(`El período del abono debe estar entre 1 y ${totalPeriods} cuotas`, 'amber');
+                return;
+            }
+            if (amount <= 0) {
+                mostrarAlerta('Ingresa un monto de abono extra válido', 'amber');
+                return;
+            }
+
+            // Validar si ya existe abono en esa cuota
+            const index = extraPayments.findIndex(p => p.period === period);
+            if (index !== -1) {
+                extraPayments[index].amount += amount;
+            } else {
+                extraPayments.push({ period, amount });
+                extraPayments.sort((a, b) => a.period - b.period);
+            }
+
+            renderizarAbonosExtra();
+            calcularAmortizacion();
+            mostrarAlerta(`Abono de $${amount} añadido a la cuota #${period}`);
+        }
+
+        function eliminarAbonoExtra(idx) {
+            extraPayments.splice(idx, 1);
+            renderizarAbonosExtra();
+            calcularAmortizacion();
+            mostrarAlerta('Abono extraordinario eliminado');
+        }
+
+        function renderizarAbonosExtra() {
+            const listContainer = document.getElementById('lista-abonos');
+            const parent = document.getElementById('container-lista-abonos');
+
+            if (extraPayments.length === 0) {
+                parent.classList.add('hidden');
+                return;
+            }
+
+            parent.classList.remove('hidden');
+            listContainer.innerHTML = '';
+            extraPayments.forEach((p, idx) => {
+                const badge = document.createElement('span');
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm";
+                badge.innerHTML = `
+                    <span>Cuota #${p.period}: <strong>$${p.amount.toLocaleString('es-ES')}</strong></span>
+                    <button onclick="eliminarAbonoExtra(${idx})" class="text-emerald-400 hover:text-red-400 transition-colors ml-1">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                listContainer.appendChild(badge);
+            });
+        }
+
+        // --- CÁLCULO GENERAL DE AMORTIZACIÓN ---
+        function calcularAmortizacion() {
+            const assetName = document.getElementById('asset-name').value || 'Crédito';
+            const cost = Math.max(0, parseFloat(document.getElementById('cost').value) || 0);
+            const years = Math.max(1, parseInt(document.getElementById('years').value) || 1);
+            const interestRate = Math.max(0, parseFloat(document.getElementById('interest').value) || 0);
+            const system = document.getElementById('system').value;
+            const frequency = parseInt(document.getElementById('frequency').value) || 12;
+
+            const totalPeriods = years * frequency;
+            const ratePerPeriod = (interestRate / 100) / frequency;
+
+            let balance = cost;
+            let scheduleData = [];
+            let cumulativeInterest = 0;
+            let cumulativePrincipal = 0;
+
+            const extraMap = {};
+            extraPayments.forEach(p => {
+                extraMap[p.period] = (extraMap[p.period] || 0) + p.amount;
+            });
+
+            for (let i = 1; i <= totalPeriods; i++) {
+                if (balance <= 0.01) break;
+
+                let interest = balance * ratePerPeriod;
+                let principal = 0;
+                let payment = 0;
+                let extra = extraMap[i] || 0;
+
+                if (system === 'french') {
+                    if (ratePerPeriod > 0) {
+                        payment = cost * (ratePerPeriod * Math.pow(1 + ratePerPeriod, totalPeriods)) / (Math.pow(1 + ratePerPeriod, totalPeriods) - 1);
+                    } else {
+                        payment = cost / totalPeriods;
+                    }
+                    principal = payment - interest;
+                } else if (system === 'german') {
+                    principal = cost / totalPeriods;
+                    payment = principal + interest;
+                } else if (system === 'american') {
+                    if (i === totalPeriods) {
+                        principal = cost;
+                        payment = principal + interest;
+                    } else {
+                        principal = 0;
+                        payment = interest;
+                    }
+                }
+
+                if (principal > balance) {
+                    principal = balance;
+                    payment = principal + interest;
+                }
+
+                let totalPrincipalPaid = principal + extra;
+                if (totalPrincipalPaid > balance) {
+                    extra = balance - principal;
+                    totalPrincipalPaid = balance;
+                }
+
+                const prevBalance = balance;
+                balance = balance - totalPrincipalPaid;
+
+                cumulativeInterest += interest;
+                cumulativePrincipal += totalPrincipalPaid;
+
+                scheduleData.push({
+                    period: i,
+                    prevBalance,
+                    payment: payment + extra,
+                    interest,
+                    principal,
+                    extra,
+                    balance: Math.max(0, balance),
+                    cumulativeInterest,
+                    cumulativePrincipal
+                });
+            }
+
+            schedule = scheduleData;
+            actualizarPanelResumen(cost, cumulativeInterest);
+            renderizarGraficoDeudora(cost);
+            renderizarTablaCuotas();
+        }
+
+        // --- ACTUALIZAR MÉTODOS Y METRICAS ---
+        function actualizarPanelResumen(cost, totalInterest) {
+            const totalPaid = cost + totalInterest;
+            const assetNameVal = document.getElementById('asset-name').value || 'Proyecto Personal';
+            
+            document.getElementById('lbl-activo').innerText = `Meta: ${assetNameVal}`;
+            document.getElementById('kpi-monto').innerText = `$ ${cost.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('kpi-interes').innerText = `$ ${totalInterest.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('kpi-total').innerText = `$ ${totalPaid.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            // Cuota primera estimada
+            const primeraCuotaVal = schedule[0] ? schedule[0].payment : 0;
+            document.getElementById('card-primera-cuota').innerText = `$ ${primeraCuotaVal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            // Distribución porcentual en barra
+            const pctCapital = totalPaid > 0 ? (cost / totalPaid) * 100 : 0;
+            const pctInteres = 100 - pctCapital;
+
+            const barCap = document.getElementById('bar-capital');
+            const barInt = document.getElementById('bar-interes');
+
+            barCap.style.width = `${pctCapital}%`;
+            barCap.innerText = pctCapital > 15 ? `${pctCapital.toFixed(1)}% Compra Activo` : '';
+            barInt.style.width = `${pctInteres}%`;
+            barInt.innerText = pctInteres > 15 ? `${pctInteres.toFixed(1)}% Intereses` : '';
+
+            document.getElementById('lbl-pct-capital').innerText = `${pctCapital.toFixed(1)}%`;
+            document.getElementById('lbl-pct-interes').innerText = `${pctInteres.toFixed(1)}%`;
+        }
+
+        // --- RENDERIZAR GRÁFICO SVG DINÁMICO ---
+        function renderizarGraficoDeudora(cost) {
+            if (schedule.length === 0) return;
+
+            // Generar ruta de línea y de área para el SVG
+            let dLine = "";
+            let dArea = "M 0,110 ";
+
+            schedule.forEach((row, idx) => {
+                const x = (idx / (schedule.length - 1)) * 500;
+                const y = 110 - (row.balance / cost) * 100;
+                dLine += `${idx === 0 ? 'M' : 'L'} ${x},${y} `;
+                dArea += `L ${x},${y} `;
+            });
+
+            dArea += "L 500,110 Z";
+
+            document.getElementById('svg-line').setAttribute('d', dLine);
+            document.getElementById('svg-area').setAttribute('d', dArea);
+
+            // Ajustar posición de los puntos inicial y final
+            const firstY = 110 - (schedule[0].prevBalance / cost) * 100;
+            document.getElementById('svg-point-start').setAttribute('cy', firstY);
+        }
+
+        // --- RENDERIZAR TABLA DE CUOTAS Y PAGINACIÓN ---
+        function renderizarTablaCuotas() {
+            const cuerpo = document.getElementById('tabla-cuerpo');
+            cuerpo.innerHTML = '';
+
+            const totalPages = Math.ceil(schedule.length / itemsPerPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = schedule.slice(startIndex, endIndex);
+
+            // Renderizar items paginados
+            paginatedItems.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-6 text-sm font-semibold text-slate-400 text-center">${row.period}</td>
+                    <td class="py-3.5 px-6 text-sm text-right text-slate-300">$ ${row.prevBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="py-3.5 px-6 text-sm font-black text-right text-white">$ ${row.payment.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="py-3.5 px-6 text-sm text-right text-amber-500 font-semibold">$ ${row.interest.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="py-3.5 px-6 text-sm text-right text-emerald-400 font-semibold">$ ${row.principal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="py-3.5 px-6 text-sm text-right">
+                        ${row.extra > 0 ? `<span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold animate-pulse">+ $${row.extra.toLocaleString('es-ES')}</span>` : '<span class="text-slate-600">-</span>'}
+                    </td>
+                    <td class="py-3.5 px-6 text-sm font-black text-right text-slate-100">$ ${row.balance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                `;
+                cuerpo.appendChild(tr);
+            });
+
+            // Actualizar labels de paginación
+            document.getElementById('lbl-paginacion').innerText = `Página ${currentPage} de ${totalPages || 1}`;
+            document.getElementById('lbl-total-registros').innerText = `Mostrando ${paginatedItems.length} de ${schedule.length} cuotas programadas.`;
+        }
+
+        function cambiarPagina(direction) {
+            const totalPages = Math.ceil(schedule.length / itemsPerPage);
+            const targetPage = currentPage + direction;
+            if (targetPage >= 1 && targetPage <= totalPages) {
+                currentPage = targetPage;
+                renderizarTablaCuotas();
+            }
+        }
+
+        // --- EXPORTACIÓN DE EXCEL CON ESTILOS CSS INCRUSTADOS (XLS COMPATIBLE CON MICROSOFT EXCEL) ---
+        function exportarExcelColorid() {
+            // Nota: Se renombra a la llamada correcta
+            exportarExcelConEstilos();
+        }
+
+        function exportarExcelConEstilos() {
+            const assetName = document.getElementById('asset-name').value || 'Crédito';
+            const cost = Math.max(0, parseFloat(document.getElementById('cost').value) || 0);
+            const years = Math.max(1, parseInt(document.getElementById('years').value) || 1);
+            const interestRate = Math.max(0, parseFloat(document.getElementById('interest').value) || 0);
+            const system = document.getElementById('system').value;
+            const frequency = parseInt(document.getElementById('frequency').value) || 12;
+
+            const totalAbonosExtra = extraPayments.reduce((acc, curr) => acc + curr.amount, 0);
+            const sistemaNombre = system === 'french' ? 'Francés (Cuota Fija)' : system === 'german' ? 'Alemán (Cuotas Variables)' : 'Americano';
+            const frecuenciaTexto = frequency === 12 ? 'Mensual' : frequency === 4 ? 'Trimestral' : frequency === 2 ? 'Semestral' : 'Anual';
+
+            let totalInterest = 0;
+            let totalPaid = 0;
+            if (schedule.length > 0) {
+                totalInterest = schedule[schedule.length - 1].cumulativeInterest;
+                totalPaid = cost + totalInterest;
+            }
+
+            // Construcción de la plantilla XML/HTML estructurada con estilos CSS corporativos
+            let excelTemplate = `
+              <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+              <head>
+                <meta charset="utf-8" />
+                <!--[if gte mso 9]>
+                <xml>
+                  <x:ExcelWorkbook>
+                    <x:ExcelWorksheets>
+                      <x:ExcelWorksheet>
+                        <x:Name>Plan de Pagos - Ecuador</x:Name>
+                        <x:WorksheetOptions>
+                          <x:DisplayGridlines/>
+                        </x:WorksheetOptions>
+                      </x:ExcelWorksheet>
+                    </x:ExcelWorksheets>
+                  </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+                <style>
+                  body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; }
+                  .title-text { font-size: 16pt; font-weight: bold; color: #065f46; text-align: left; }
+                  .meta-label { font-size: 10pt; font-weight: bold; color: #334155; background-color: #f1f5f9; }
+                  .meta-value { font-size: 10pt; color: #0f172a; background-color: #f1f5f9; }
+                  
+                  .section-title { font-size: 12pt; font-weight: bold; color: #0f172a; height: 30px; vertical-align: bottom; }
+                  .kpi-label { font-weight: bold; font-size: 10pt; background-color: #047857; color: #ffffff; text-align: left; }
+                  .kpi-value { font-weight: bold; font-size: 11pt; background-color: #ecfdf5; color: #065f46; text-align: right; }
+                  
+                  .th-style { background-color: #1e293b; color: #ffffff; font-weight: bold; font-size: 10pt; text-align: center; border: 1px solid #475569; }
+                  .td-center { text-align: center; border: 1px solid #e2e8f0; }
+                  .td-right { text-align: right; border: 1px solid #e2e8f0; }
+                  .td-bold-right { text-align: right; font-weight: bold; border: 1px solid #e2e8f0; }
+                  
+                  .row-even { background-color: #f8fafc; }
+                  .row-odd { background-color: #ffffff; }
+                  .extra-payment-highlight { background-color: #d1fae5; color: #065f46; font-weight: bold; text-align: right; border: 1px solid #e2e8f0; }
+                  .final-row { background-color: #cbd5e1; font-weight: bold; }
+                </style>
+              </head>
+              <body>
+                <table>
+                  <tr>
+                    <td colspan="7" class="title-text">📊 REPORTE PROFESIONAL DE PLAN DE PAGOS Y AMORTIZACIÓN</td>
+                  </tr>
+                  <tr>
+                    <td colspan="7" style="font-size: 9pt; color: #64748b;">Generado con el Simulador de Créditos Inteligente de Ecuador</td>
+                  </tr>
+                  <tr><td colspan="7"></td></tr>
+
+                  <tr>
+                    <td class="meta-label">Activo / Meta:</td>
+                    <td colspan="2" class="meta-value">${assetName}</td>
+                    <td></td>
+                    <td class="meta-label">Método aplicado:</td>
+                    <td colspan="2" class="meta-value">${sistemaNombre}</td>
+                  </tr>
+                  <tr>
+                    <td class="meta-label">Interés Anual:</td>
+                    <td colspan="2" class="meta-value">${interestRate.toFixed(2)}%</td>
+                    <td></td>
+                    <td class="meta-label">Plazo de pagos:</td>
+                    <td colspan="2" class="meta-value">${years} Años (${frecuenciaTexto})</td>
+                  </tr>
+                  <tr><td colspan="7"></td></tr>
+
+                  <tr>
+                    <td colspan="7" class="section-title">💰 RESUMEN GENERAL DEL FINANCIAMIENTO</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" class="kpi-label">Monto Solicitado (Deuda)</td>
+                    <td colspan="2" class="kpi-label">Total de Intereses a Pagar</td>
+                    <td colspan="3" class="kpi-label">Monto Final con Intereses</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" class="kpi-value">$ ${cost.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td colspan="2" class="kpi-value" style="color: #b45309; background-color: #fffbeb;">$ ${totalInterest.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td colspan="3" class="kpi-value" style="color: #047857; background-color: #f0fdf4;">$ ${totalPaid.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" style="font-size: 9pt; color: #64748b;">Abonos extraordinarios totales realizados en el plan:</td>
+                    <td colspan="3" style="font-size: 10pt; font-weight: bold; color: #047857; text-align: right;">$ ${totalAbonosExtra.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                  <tr><td colspan="7"></td></tr>
+
+                  <tr>
+                    <td colspan="7" class="section-title">📅 CRONOGRAMA CUOTA POR CUOTA</td>
+                  </tr>
+                  <tr>
+                    <td class="th-style" style="width: 80px;">Cuota</td>
+                    <td class="th-style" style="width: 150px;">Saldo Pendiente Inicial</td>
+                    <td class="th-style" style="width: 140px;">Monto Cuota Total</td>
+                    <td class="th-style" style="width: 130px; color: #fbbf24;">Interés Cobrado</td>
+                    <td class="th-style" style="width: 130px; color: #34d399;">Abono Capital</td>
+                    <td class="th-style" style="width: 140px;">Abono Extra</td>
+                    <td class="th-style" style="width: 150px;">Saldo Pendiente Final</td>
+                  </tr>
+            `;
+
+            schedule.forEach((row, idx) => {
+                const rowClass = idx % 2 === 0 ? 'row-even' : 'row-odd';
+                const extraClass = row.extra > 0 ? 'extra-payment-highlight' : 'td-right';
+
+                excelTemplate += `
+                  <tr class="${rowClass}">
+                    <td class="td-center">${row.period}</td>
+                    <td class="td-right">$ ${row.prevBalance.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-bold-right">$ ${row.payment.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-right" style="color: #d97706;">$ ${row.interest.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-right" style="color: #059669;">$ ${row.principal.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="${extraClass}">${row.extra > 0 ? `$ ${row.extra.toLocaleString('es-ES', { minimumFractionDigits: 2 })}` : '-'}</td>
+                    <td class="td-bold-right" style="color: #0f172a;">$ ${row.balance.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                  </tr>
+                `;
+            });
+
+            excelTemplate += `
+                  <tr class="final-row">
+                    <td class="td-center">TOTAL</td>
+                    <td class="td-right">-</td>
+                    <td class="td-bold-right">$ ${totalPaid.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-bold-right" style="color: #b45309;">$ ${totalInterest.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-bold-right" style="color: #047857;">$ ${cost.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-bold-right">$ ${totalAbonosExtra.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</td>
+                    <td class="td-bold-right">PAGADO</td>
+                  </tr>
+                </table>
+              </body>
+              </html>
+            `;
+
+            // Creación del blob e inicio de descarga de manera segura
+            const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Reporte_Amortizacion_${assetName.replace(/\s+/g, '_')}.xls`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            mostrarAlerta('¡Tu Excel con estilos a color se descargó perfectamente!');
+        }
+
+        // --- CARGAR CÁLCULO INICIAL AL ENTRAR AL SITIO ---
+        window.onload = function() {
+            calcularAmortizacion();
+        };
+    </script>
+</body>
+</html>

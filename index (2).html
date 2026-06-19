@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador Financiero Pro - Ecuador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animaciones y estilos personalizados */
+        .selection-emerald::selection { background-color: #10b981; color: #020617; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection-emerald">
+
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500 text-slate-950 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <span class="text-xl font-bold">📊</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-white tracking-tight">Planificador Financiero Pro</h1>
+                    <p class="text-xs text-slate-400">Herramienta local de simulación para Ecuador</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportarExcelConEstilos()" class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-400/20">
+                    <span>🟢 Exportar Excel Colorido</span>
+                </button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-850 transition-all duration-200">
+                    <span>🖨️ Imprimir Plan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <section class="bg-gradient-to-br from-emerald-950/40 to-slate-900 border border-emerald-500/10 p-6 rounded-2xl shadow-xl space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-emerald-500/20 p-2 rounded-xl text-emerald-400 text-lg">✨</div>
+                    <div>
+                        <h2 class="text-lg font-black text-white">Casos Prácticos de Ecuador</h2>
+                        <p class="text-xs text-slate-400">Selecciona un ejemplo rápido para cargar sus valores:</p>
+                    </div>
+                </div>
+                <button onclick="resetearFormulario()" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all">
+                    <span>🧹 Limpiar y Personalizar</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                <button onclick="cargarCaso('banecuador')" class="bg-slate-900/60 border border-slate-800 hover:border-emerald-500 p-4 rounded-xl text-left transition-all group">
+                    <span class="font-extrabold text-sm block mb-1 text-slate-200 group-hover:text-emerald-400">🇪🇨 BanEcuador (Pymes)</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$20,000</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">5 años • Sistema Alemán</span>
+                </button>
+
+                <button onclick="cargarCaso('guayaquil')" class="bg-slate-900/60 border border-slate-800 hover:border-emerald-500 p-4 rounded-xl text-left transition-all group">
+                    <span class="font-extrabold text-sm block mb-1 text-slate-200 group-hover:text-emerald-400">🚗 B. Guayaquil (Fortuner)</span>
+                    <span class="text-[11px] text-slate-400 block">Monto: <strong class="text-slate-200">$58,000</strong></span>
+                    <span class="text-[10px] text-emerald-500/80 block font-medium mt-1">8 años • Sistema Francés</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex items-start gap-3">
+                <span class="text-emerald-400 mt-0.5">ℹ️</span>
+                <div class="text-xs space-y-1">
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">Nota de Análisis</span>
+                    <p id="txt-descripcion" class="text-slate-300 leading-relaxed">Selecciona un caso arriba o edita los parámetros de abajo para recalcular tu tabla de amortización en tiempo real.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800/80 shadow-2xl space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <span class="bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded text-xs">1</span>
+                        Configura tu Crédito
+                    </h2>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Nombre del Activo / Meta</label>
+                    <input type="text" id="inp-nombre" value="Toyota Fortuner SUV" oninput="actualizarCalculos()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Costo o Valor del Activo ($)</label>
+                    <input type="number" id="inp-costo" value="58000" oninput="actualizarCalculos()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Plazo (Anual)</label>
+                        <input type="number" id="inp-anos" value="8" min="1" max="40" oninput="actualizarCalculos()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Interés Anual (%)</label>
+                        <input type="number" id="inp-interes" value="12.99" step="0.01" oninput="actualizarCalculos()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Sistema de Amortización</label>
+                    <select id="inp-sistema" onchange="actualizarCalculos()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="french">Francés (Cuotas Fijas)</option>
+                        <option value="german">Alemán (Cuotas Variables)</option>
+                        <option value="american">Americano (Interés Solo, Capital al Final)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <span id="lbl-meta" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Meta: Toyota Fortuner SUV
+                        </span>
+                        <h3 class="text-2xl font-black text-white mt-2">Plan de Financiamiento</h3>
+                    </div>
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl text-right">
+                        <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">Primera Cuota Est.</span>
+                        <span id="card-primera-cuota" class="text-2xl font-black text-emerald-400">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Monto Solicitado</span>
+                        <p id="kpi-monto" class="text-xl font-extrabold text-white">$0.00</p>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg border-l-4 border-l-amber-500">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Interés Total</span>
+                        <p id="kpi-interes" class="text-xl font-extrabold text-amber-500">$0.00</p>
+                    </div>
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-lg border-l-4 border-l-emerald-500">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Total a Pagar</span>
+                        <p id="kpi-total" class="text-xl font-extrabold text-emerald-400">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h4 class="text-sm font-bold text-white">📊 Destino de tus Pagos Acumulados</h4>
+                    <div class="w-full h-8 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800 p-1">
+                        <div id="bar-capital" class="bg-emerald-500 h-full rounded-l-full flex items-center justify-center text-slate-950 text-[11px] font-black transition-all duration-300" style="width: 50%"></div>
+                        <div id="bar-interes" class="bg-amber-500 h-full rounded-r-full flex items-center justify-center text-slate-950 text-[11px] font-black transition-all duration-300" style="width: 50%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-400">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Capital Neto</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Intereses del Banco</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white">📅 Tabla Completa de Amortización</h3>
+                <p class="text-xs text-slate-400 mt-1">Cronograma proyectado mes a mes:</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950 border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
+                            <th class="py-4 px-6 text-center">Mes / Cuota</th>
+                            <th class="py-4 px-6 text-right">Saldo Inicial</th>
+                            <th class="py-4 px-6 text-right text-white">Monto Cuota</th>
+                            <th class="py-4 px-6 text-right text-amber-500">Interés</th>
+                            <th class="py-4 px-6 text-right text-emerald-400">Abono Capital</th>
+                            <th class="py-4 px-6 text-right">Saldo Restante</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-cuerpo" class="divide-y divide-slate-800 text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 Simulador de Créditos Ecuador. Tu archivo listo para usar en la web.</p>
+    </footer>
+
+    <script>
+        // Variables globales y base de datos interna para cálculos rápidos
+        let scheduleGlobal = [];
+        let resumenGlobal = { totalInterest: 0, totalPaid: 0, costo: 0, nombre: '' };
+
+        const casos = {
+            banecuador: { nombre: "Préstamo Productivo Pymes", costo: 20000, anos: 5, interes: 9.76, sistema: "german", desc: "Usa el sistema Alemán (cuotas decrecientes). Pagas menos interés total a la larga porque reduces rápido la deuda." },
+            guayaquil: { nombre: "Toyota Fortuner SUV", costo: 58000, anos: 8, interes: 12.99, sistema: "french", desc: "Usa el sistema Francés (cuotas fijas). Ideal para presupuestos exactos ya que pagas lo mismo cada mes." }
+        };
+
+        function cargarCaso(key) {
+            const c = casos[key];
+            document.getElementById('inp-nombre').value = c.nombre;
+            document.getElementById('inp-costo').value = c.costo;
+            document.getElementById('inp-anos').value = c.anos;
+            document.getElementById('inp-interes').value = c.interes;
+            document.getElementById('inp-sistema').value = c.sistema;
+            document.getElementById('txt-descripcion').innerText = c.desc;
+            actualizarCalculos();
+        }
+
+        function resetearFormulario() {
+            document.getElementById('inp-nombre').value = "Mi Plan Personalizado";
+            document.getElementById('inp-costo').value = 5000;
+            document.getElementById('inp-anos').value = 3;
+            document.getElementById('inp-interes').value = 11.5;
+            document.getElementById('inp-sistema').value = "french";
+            document.getElementById('txt-descripcion').innerText = "Personaliza los campos libres del formulario a tu gusto.";
+            actualizarCalculos();
+        }
+
+        function actualizarCalculos() {
+            const nombre = document.getElementById('inp-nombre').value || 'Crédito';
+            const cost = Math.max(0, parseFloat(document.getElementById('inp-costo').value) || 0);
+            const years = Math.max(1, parseInt(document.getElementById('inp-anos').value) || 1);
+            const interestRate = Math.max(0, parseFloat(document.getElementById('inp-interes').value) || 0);
+            const system = document.getElementById('inp-sistema').value;
+            const frequency = 12; // Mensual por defecto
+
+            const totalPeriods = years * frequency;
+            const ratePerPeriod = (interestRate / 100) / frequency;
+
+            let balance = cost;
+            let schedule = [];
+            let cumulativeInterest = 0;
+
+            for (let i = 1; i <= totalPeriods; i++) {
+                if (balance <= 0.01) break;
+
+                let interest = balance * ratePerPeriod;
+                let principal = 0;
+                let payment = 0;
+
+                if (system === 'french') {
+                    if (ratePerPeriod > 0) {
+                        payment = cost * (ratePerPeriod * Math.pow(1 + ratePerPeriod, totalPeriods)) / (Math.pow(1 + ratePerPeriod, totalPeriods) - 1);
+                    } else {
+                        payment = cost / totalPeriods;
+                    }
+                    principal = payment - interest;
+                } else if (system === 'german') {
+                    principal = cost / totalPeriods;
+                    payment = principal + interest;
+                } else if (system === 'american') {
+                    if (i === totalPeriods) {
+                        principal = cost;
+                        payment = principal + interest;
+                    } else {
+                        principal = 0;
+                        payment = interest;
+                    }
+                }
+
+                if (principal > balance) {
+                    principal = balance;
+                    payment = principal + interest;
+                }
+
+                const prevBalance = balance;
+                balance = balance - principal;
+                cumulativeInterest += interest;
+
+                schedule.push({
+                    period: i,
+                    prevBalance,
+                    payment,
+                    interest,
+                    principal,
+                    balance: Math.max(0, balance)
+                });
+            }
+
+            scheduleGlobal = schedule;
+            resumenGlobal = {
+                totalInterest: cumulativeInterest,
+                totalPaid: cost + cumulativeInterest,
+                costo: cost,
+                nombre: nombre,
+                sistema: system,
+                anos: years,
+                interes: interestRate
+            };
+
+            renderUI();
+        }
+
+        function renderUI() {
+            document.getElementById('lbl-meta').innerText = `Meta: ${resumenGlobal.nombre}`;
+            document.getElementById('kpi-monto').innerText = `$ ${resumenGlobal.costo.toLocaleString('es-ES', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpi-interes').innerText = `$ ${resumenGlobal.totalInterest.toLocaleString('es-ES', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpi-total').innerText = `$ ${resumenGlobal.totalPaid.toLocaleString('es-ES', {minimumFractionDigits: 2})}`;
+            
+            const primeraCuota = scheduleGlobal[0] ? scheduleGlobal[0].payment : 0;
+            document.getElementById('card-primera-cuota').innerText = `$ ${primeraCuota.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // Actualizar barras
+            const total = resumenGlobal.totalPaid || 1;
+            const pctCapital = (resumenGlobal.costo / total) * 100;
+            const pctInteres = 100 - pctCapital;
+
+            document.getElementById('bar-capital').style.width = `${pctCapital}%`;
+            document.getElementById('bar-capital').innerText = pctCapital > 20 ? `${pctCapital.toFixed(1)}% Compra` : '';
+            document.getElementById('bar-interes').style.width = `${pctInteres}%`;
+            document.getElementById('bar-interes').innerText = pctInteres > 20 ? `${pctInteres.toFixed(1)}% Interés` : '';
+
+            // Llenar tabla
+            const cuerpo = document.getElementById('tabla-cuerpo');
+            cuerpo.innerHTML = '';
+
+            scheduleGlobal.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 text-center text-slate-400 font-semibold">${row.period}</td>
+                    <td class="py-3 px-6 text-right text-slate-300">$ ${row.prevBalance.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                    <td class="py-3 px-6 text-right text-white font-black">$ ${row.payment.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                    <td class="py-3 px-6 text-right text-amber-500 font-medium">$ ${row.interest.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                    <td class="py-3 px-6 text-right text-emerald-400 font-medium">$ ${row.principal.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                    <td class="py-3 px-6 text-right text-slate-100 font-semibold">$ ${row.balance.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                `;
+                cuerpo.appendChild(tr);
+            });
+        }
+
+        function exportarExcelConEstilos() {
+            const sistemaTexto = resumenGlobal.sistema === 'french' ? 'Francés (Fijo)' : resumenGlobal.sistema === 'german' ? 'Alemán (Variable)' : 'Americano';
+            
+            let xml = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8" />
+                <style>
+                    body { font-family: 'Segoe UI', Arial, sans-serif; }
+                    .header-title { font-size: 16pt; font-weight: bold; color: #047857; }
+                    .kpi-title { background-color: #047857; color: white; font-weight: bold; font-size: 10pt; text-align: left; }
+                    .kpi-box { font-weight: bold; font-size: 11pt; background-color: #ecfdf5; color: #065f46; text-align: right; }
+                    .th-main { background-color: #1e293b; color: white; font-weight: bold; text-align: center; border: 1px solid #475569; }
+                    .td-normal { border: 1px solid #e2e8f0; text-align: right; }
+                    .row-even { background-color: #f8fafc; }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <tr><td colspan="6" class="header-title">📊 PLANIFICACIÓN PROFESIONAL DE CRÉDITO</td></tr>
+                    <tr><td colspan="6" style="color:#64748b;">Reporte automatizado para análisis financiero</td></tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr>
+                        <td style="font-weight:bold;">Activo:</td><td>${resumenGlobal.nombre}</td>
+                        <td style="font-weight:bold;">Sistema:</td><td>${sistemaTexto}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bold;">Interés:</td><td>${resumenGlobal.interes}% Anual</td>
+                        <td style="font-weight:bold;">Plazo:</td><td>${resumenGlobal.anos} Años</td>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr><td colspan="6" style="font-weight:bold; font-size:12pt;">💰 RESUMEN GENERAL</td></tr>
+                    <tr>
+                        <td colspan="2" class="kpi-title">Monto de Deuda</td>
+                        <td colspan="2" class="kpi-title">Intereses Totales</td>
+                        <td colspan="2" class="kpi-title">Monto Final Compuesto</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="kpi-box">$ ${resumenGlobal.costo.toLocaleString('es-ES', {minimumFractionDigits:2})}</td>
+                        <td colspan="2" class="kpi-box" style="color:#b45309; background-color:#fffbeb;">$ ${resumenGlobal.totalInterest.toLocaleString('es-ES', {minimumFractionDigits:2})}</td>
+                        <td colspan="2" class="kpi-box">$ ${resumenGlobal.totalPaid.toLocaleString('es-ES', {minimumFractionDigits:2})}</td>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr>
+                        <td class="th-main">Cuota</td>
+                        <td class="th-main">Saldo Inicial</td>
+                        <td class="th-main">Monto Cuota</td>
+                        <td class="th-main">Interés</td>
+                        <td class="th-main">Abono Capital</td>
+                        <td class="th-main">Saldo Final</td>
+                    </tr>
+            `;
+
+            scheduleGlobal.forEach((row, index) => {
+                const cebra = index % 2 === 0 ? 'class="row-even"' : '';
+                xml += `
+                    <tr ${cebra}>
+                        <td style="text-align:center; border:1px solid #e2e8f0;">${row.period}</td>
+                        <td class="td-normal">$ ${row.prevBalance.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                        <td class="td-normal" style="font-weight:bold;">$ ${row.payment.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                        <td class="td-normal" style="color:#d97706;">$ ${row.interest.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                        <td class="td-normal" style="color:#059669;">$ ${row.principal.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                        <td class="td-normal" style="font-weight:bold;">$ ${row.balance.toLocaleString('es-ES',{minimumFractionDigits:2})}</td>
+                    </tr>
+                `;
+            });
+
+            xml += `
+                </table>
+            </body>
+            </html>
+            `;
+
+            const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Plan_Amortizacion_${resumenGlobal.nombre.replace(/\s+/g, '_')}.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Arrancar la app por primera vez automáticamente
+        actualizarCalculos();
+    </script>
+</body>
+</html>
